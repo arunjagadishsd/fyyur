@@ -100,14 +100,19 @@ def index():
 
 @app.route('/venues')
 def venues():
+  def find(lst, key1, value1, key2, value2):
+    for (i, dic) in enumerate(lst):
+        if dic[key1] == value1 and dic[key2] == value2:
+            return {"success": True, "index": i}
+    return {"success": False, "index": -1}
+
   venues = Venue.query.group_by(Venue.id, Venue.city, Venue.state).all()
   data = []
   a = 0;
   for venue in venues:
       findVal = find(data, 'city', venue.city, 'state', venue.state)
-      print('bool {}'.format(findVal['success']))
       if (findVal['success']):
-        data_dic = findVal['index']['venues']
+        data_dic = data[findVal['index']]['venues']
         data_dic.append({
             "id": venue.id,
             "name": venue.name,
@@ -123,13 +128,6 @@ def venues():
               "num_upcoming_shows": 1
             }]
         })
-
-  def find(lst, key1, value1, key2, value2):
-    for (i, dic) in enumerate(lst):
-        if dic[key1] == value1 and dic[key2] == value2:
-            return {"success": True, "index": i}
-    return {"success": False, "index": -1}
-
   return render_template('pages/venues.html', areas=data);
 
 @app.route('/venues/search', methods=['POST'])
@@ -137,15 +135,15 @@ def search_venues():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-  response= {
-    "count": 1,
-    "data": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
+  search_term = request.form.get('search_term', '')
+  # print(search_term)
+  venues = Venue.query.filter(Venue.name.ilike('%'+search_term+'%')).all()
+  response = {
+    "count" : len(venues),
+    "data": venues
   }
-  return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+  print(response)
+  return render_template('pages/search_venues.html', results=response, search_term=search_term)
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
