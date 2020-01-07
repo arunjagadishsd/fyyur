@@ -22,7 +22,6 @@ moment = Moment(app)
 app.config.from_object('config')
 db = SQLAlchemy(app)
 
-# TODO: connect to a local postgresql database
 migrate = Migrate(app, db)
 
 #----------------------------------------------------------------------------#
@@ -45,11 +44,6 @@ class Venue(db.Model):
     genres = db.Column(db.ARRAY(db.String))
     shows = db.relationship('Show', backref='Venue', lazy=True)
 
-    def __repr__(self):
-      return f'<{self.city} {self.state} {self.name}>'
-
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
-
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -67,10 +61,6 @@ class Artist(db.Model):
     phone = db.Column(db.String(120))
     genres = db.Column(db.ARRAY(db.String))
     shows = db.relationship('Show', backref='Artist', lazy=True)
-
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
-
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
 
 class Show(db.Model):
@@ -110,35 +100,6 @@ def index():
 
 @app.route('/venues')
 def venues():
-  # TODO: replace with real venues data.
-  #       num_shows should be aggregated based on number of upcoming shows per venue.
-  # data=[{
-  #   "city": "San Francisco",
-  #   "state": "CA",
-  #   "venues": [{
-  #     "id": 1,
-  #     "name": "The Musical Hop",
-  #     "num_upcoming_shows": 0,
-  #   }, {
-  #     "id": 3,
-  #     "name": "Park Square Live Music & Coffee",
-  #     "num_upcoming_shows": 1,
-  #   }]
-  # }, {
-  #   "city": "New York",
-  #   "state": "NY",
-  #   "venues": [{
-  #     "id": 2,
-  #     "name": "The Dueling Pianos Bar",
-  #     "num_upcoming_shows": 0
-  #   }]
-  # }
-  def find(lst, key1, value1, key2, value2):
-    for (i, dic) in enumerate(lst):
-        if dic[key1] == value1 and dic[key2] == value2:
-            return {"success": True, "index": i}
-    return {"success": False, "index": -1}
-
   venues = Venue.query.group_by(Venue.id, Venue.city, Venue.state).all()
   data = []
   a = 0;
@@ -162,6 +123,13 @@ def venues():
               "num_upcoming_shows": 1
             }]
         })
+
+  def find(lst, key1, value1, key2, value2):
+    for (i, dic) in enumerate(lst):
+        if dic[key1] == value1 and dic[key2] == value2:
+            return {"success": True, "index": i}
+    return {"success": False, "index": -1}
+
   return render_template('pages/venues.html', areas=data);
 
 @app.route('/venues/search', methods=['POST'])
