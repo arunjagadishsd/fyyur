@@ -7,7 +7,7 @@ import dateutil.parser
 import babel
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from flask_moment import Moment
-from flask_sqlalchemy import SQLAlchemy, ForeignKey, ARRAY
+from flask_sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
@@ -41,8 +41,7 @@ class Venue(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     website = db.Column(db.String(500))
-    genres = db.Column(ARRAY(String))
-    genres = db.Column(ARRAY(db.String))
+    genres = db.Column(db.ARRAY(db.String))
     shows = db.relationship('Show', backref='Venue', lazy=True)
 
 
@@ -62,7 +61,7 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(500))
     website = db.Column(db.String(500))
     phone = db.Column(db.String(120))
-    genres = db.Column(ARRAY(db.String))
+    genres = db.Column(db.ARRAY(db.String))
     shows = db.relationship('Show', backref='Artist', lazy=True)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
@@ -71,8 +70,8 @@ class Artist(db.Model):
 class Show(db.Model):
   __tablename__ = 'Show'
   id = db.Column(db.Integer, primary_key=True)
-  venue_id = db.Column(db.Integer, ForeignKey(Venue.id))
-  artist_id = db.Column(db.Integer, ForeignKey(Artist.id))
+  venue_id = db.Column(db.Integer, db.ForeignKey(Venue.id))
+  artist_id = db.Column(db.Integer, db.ForeignKey(Artist.id))
   show_time = db.Column(db.DateTime, nullable=False)
 #----------------------------------------------------------------------------#
 # Filters.
