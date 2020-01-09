@@ -42,7 +42,7 @@ class Venue(db.Model):
     facebook_link = db.Column(db.String(120))
     website = db.Column(db.String(500))
     genres = db.Column(db.ARRAY(db.String))
-    seeking_talent = db.Column(db.Boolean,default = False)
+    seeking_talent = db.Column(db.Boolean, default=False)
     seeking_description = db.Column(db.String)
     shows = db.relationship('Show', backref='Venue', lazy=True)
 
@@ -62,22 +62,33 @@ class Venue(db.Model):
 
 
 class Artist(db.Model):
-    __tablename__ = 'Artist'
+  __tablename__ = 'Artist'
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
-    seeking_description = db.Column(db.String(500))
-    website = db.Column(db.String(500))
-    phone = db.Column(db.String(120))
-    genres = db.Column(db.ARRAY(db.String))
-    shows = db.relationship('Show', backref='Artist', lazy=True)
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String)
+  city = db.Column(db.String(120))
+  state = db.Column(db.String(120))
+  phone = db.Column(db.String(120))
+  genres = db.Column(db.String(120))
+  image_link = db.Column(db.String(500))
+  facebook_link = db.Column(db.String(120))
+  seeking_venue = db.Column(db.Boolean)
+  seeking_description = db.Column(db.String(500))
+  website = db.Column(db.String(500))
+  phone = db.Column(db.String(120))
+  genres = db.Column(db.ARRAY(db.String))
+  shows = db.relationship('Show', backref='Artist', lazy=True)
 
+  def artist_pay_load(self):
+    return {
+        'id': self.id,
+        'name': self.name,
+        'genres': self.genres,
+        'city': self.city,
+        'state': self.state,
+        'phone': self.phone,
+        'facebook_link': self.facebook_link,
+    }
 
 class Show(db.Model):
   __tablename__ = 'Show'
@@ -148,7 +159,6 @@ def venues():
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
   search_term = request.form.get('search_term', '')
@@ -181,28 +191,6 @@ def show_venue(venue_id):
       past_show_count += 1
   venue_pay_load['upcoming_show_count'] = upcoming_show_count
   venue_pay_load['past_show_count'] = past_show_count
-  #     "id": 1,
-  #     "name": "The Musical Hop",
-  #     "genres": ["Jazz", "Reggae", "Swing", "Classical", "Folk"],
-  #     "address": "1015 Folsom Street",
-  #     "city": "San Francisco",
-  #     "state": "CA",
-  #     "phone": "123-123-1234",
-  #     "website": "https://www.themusicalhop.com",
-  #     "facebook_link": "https://www.facebook.com/TheMusicalHop",
-  #     "seeking_talent": True,
-  #     "seeking_description": "We are on the lookout for a local artist to play every two weeks. Please call us.",
-  #     "image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
-  #     "past_shows": [{
-  #         "artist_id": 4,
-  #         "artist_name": "Guns N Petals",
-  #         "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-  #         "start_time": "2019-05-21T21:30:00.000Z"
-  #     }],
-  #     "upcoming_shows": [],
-  #     "past_shows_count": 1,
-  #     "upcoming_shows_count": 0,
-  # }
   return render_template('pages/show_venue.html', venue=venue_pay_load)
 
 #  Create Venue
@@ -243,7 +231,7 @@ def create_venue_submission():
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
-  # TODO: Complete this endpoint for taking a venue_id, and using
+  
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
   try:
     venue = Venue.query.get(venue_id)
@@ -261,31 +249,18 @@ def delete_venue(venue_id):
 #  ----------------------------------------------------------------
 @app.route('/artists')
 def artists():
-  # TODO: replace with real data returned from querying the database
-  data=[{
-    "id": 4,
-    "name": "Guns N Petals",
-  }, {
-    "id": 5,
-    "name": "Matt Quevedo",
-  }, {
-    "id": 6,
-    "name": "The Wild Sax Band",
-  }]
+  data=Artist.query.all()
   return render_template('pages/artists.html', artists=data)
 
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
   # search for "band" should return "The Wild Sax Band".
+  search_term = request.form.get('search_term', '')
+  data = Artist.query.filter(Artist.name.ilike('%'+search_term+'%')).all()
   response={
-    "count": 1,
-    "data": [{
-      "id": 4,
-      "name": "Guns N Petals",
-      "num_upcoming_shows": 0,
-    }]
+      "count": len(data),
+      "data": data
   }
   return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
@@ -293,6 +268,27 @@ def search_artists():
 def show_artist(artist_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
+
+  artist = Artist.query.get(artist_id)
+  venue_pay_load = Venue.venue_pay_load(venue)
+  venue_pay_load['past_shows'] = []
+  venue_pay_load['upcoming_shows'] = []
+  shows = Show.query.filter(Show.venue_id == venue_id).all()
+  current_time = datetime.now()
+  upcoming_show_count = 0
+  past_show_count = 0
+  for show in shows:
+    if show.show_time >= current_time:
+      venue_pay_load['upcoming_shows'].append(show)
+      upcoming_show_count += 1
+    else:
+      venue_pay_load['past_shows'].append(show)
+      past_show_count += 1
+  venue_pay_load['upcoming_show_count'] = upcoming_show_count
+  venue_pay_load['past_show_count'] = past_show_count
+
+
+
   data1={
     "id": 4,
     "name": "Guns N Petals",
