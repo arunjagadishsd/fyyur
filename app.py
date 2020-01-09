@@ -42,6 +42,8 @@ class Venue(db.Model):
     facebook_link = db.Column(db.String(120))
     website = db.Column(db.String(500))
     genres = db.Column(db.ARRAY(db.String))
+    seeking_talent = db.Column(db.Boolean,default = False)
+    seeking_description = db.Column(db.String)
     shows = db.relationship('Show', backref='Venue', lazy=True)
 
     def venue_pay_load(self):
@@ -213,6 +215,9 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
+  print('ji')
+  print('request.form' + request.form['name'],)
+  name = request.form['name']
   try:
     venue = Venue(
         name=request.form['name'],
@@ -221,19 +226,17 @@ def create_venue_submission():
         city=request.form['city'],
         state=request.form['state'],
         phone=request.form['phone'],
-        website=request.form['website'],
         facebook_link=request.form['facebook_link'],
-        image_link=request.form['image_link'],
         seeking_talent=False,
         seeking_description=''
     )
-    session.session.add(venue)
+    db.session.add(venue)
     db.session.commit()
     # on successful db insert, flash success
     flash('Venue ' + request.form['name'] + ' was successfully listed!')
   except :
     db.session.rollback()
-    flash('An error occurred. Venue ' + data.name + ' could not be listed.')
+    flash('An error occurred. Venue ' + name + ' could not be listed.')
   finally:
     db.session.close()
   return render_template('pages/home.html')
