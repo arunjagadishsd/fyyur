@@ -314,7 +314,6 @@ def edit_artist(artist_id):
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
-  # TODO: take values from the form submitted, and update existing
   
   artist = Artist.query.get(artist_id)
   artist.name=request.form['name'],
@@ -323,7 +322,7 @@ def edit_artist_submission(artist_id):
   artist.city=request.form['city'],
   artist.state=request.form['state'],
   artist.phone=request.form['phone'],
-  artist.facebook_link=request.form['facebook_link'],
+  artist.facebook_link=request.form['facebook_link']
     
   db.session.add(artist)
   db.session.commit()
@@ -335,12 +334,27 @@ def edit_artist_submission(artist_id):
 def edit_venue(venue_id):
   form=VenueForm()
   venue = Venue.query.get(venue_id)
+  form.name.data = venue["name"]
+  form.genres.data = artist["genres"]
+  form.city.data = artist["city"]
+  form.state.data = artist["state"]
+  form.phone.data = artist["phone"]
+  form.facebook_link.data = artist["facebook_link"]
   return render_template('forms/edit_venue.html', form=form, venue=venue)
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
-  # TODO: take values from the form submitted, and update existing
   # venue record with ID <venue_id> using the new attributes
+  venue = Venue.query.get(venue_id)
+  venue.name=request.form['name'],
+  venue.genres=request.form.getlist('genres'),
+  venue.address=request.form['address'],
+  venue.city=request.form['city'],
+  venue.state=request.form['state'],
+  venue.phone=request.form['phone'],
+  venue.facebook_link=request.form['facebook_link']
+  db.session.add(venue)
+  db.session.commit()
   return redirect(url_for('show_venue', venue_id=venue_id))
 
 #  Create Artist
