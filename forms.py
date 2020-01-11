@@ -182,7 +182,7 @@ class ArtistForm(Form):
     )
     phone = StringField(
         # TODO implement validation logic for state
-        'phone'
+        'phone', validators=[DataRequired()]
     )
     image_link = StringField(
         'image_link'
@@ -218,3 +218,62 @@ class ArtistForm(Form):
     )
 
 # TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
+
+
+class ArtistForm(Form):
+    def validate_phone(form, field):
+        if not re.search(r"^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$", field.data):
+            raise ValidationError("Invalid phone number.")
+
+    def validate_genres(form, field):
+        genres_values = [choice[1] for choice in genres_choices]
+        for value in field.data:
+            if value not in genres_values:
+                raise ValidationError('Invalid genres value.')
+
+    name = StringField(
+        'name', validators=[DataRequired(), Length(max=120)]
+    )
+    city = StringField(
+        'city', validators=[DataRequired(), Length(max=120)]
+    )
+    state = SelectField(
+        'state', validators=[DataRequired(), Length(max=120)],
+        choices=state_choices
+    )
+    phone = StringField(
+        'phone', validators=[DataRequired()]
+    )
+    genres = SelectMultipleField(
+        'genres', validators=[DataRequired()],
+        choices=genres_choices
+    )
+    seeking_venue = BooleanField(
+        'seeking_venue'
+    )
+    seeking_description = StringField(
+        'seeking_description', validators=[Length(max=500)]
+    )
+    website = StringField(
+        'website', validators=[DataRequired(), URL(), Length(max=120)]
+    )
+    image_link = StringField(
+        'image_link', validators=[DataRequired(), URL(), Length(max=500)]
+    )
+    facebook_link = StringField(
+        'facebook_link', validators=[URL()]
+    )
+
+
+class ShowForm(Form):
+    artist_id = StringField(
+        'artist_id'
+    )
+    venue_id = StringField(
+        'venue_id'
+    )
+    start_time = DateTimeField(
+        'start_time',
+        validators=[DataRequired()],
+        default=datetime.today()
+    )
