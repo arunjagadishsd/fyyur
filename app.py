@@ -207,7 +207,6 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
-  print('ji')
   print('request.form' + request.form['name'],)
   name = request.form['name']
   try:
@@ -300,12 +299,34 @@ def show_artist(artist_id):
 def edit_artist(artist_id):
   form=ArtistForm()
   artist = Artist.query.get(artist_id)
-  print(artist.__dict__)
+  
+  form.name.data = artist["name"]
+  form.genres.data = artist["genres"]
+  form.city.data = artist["city"]
+  form.state.data = artist["state"]
+  form.phone.data = artist["phone"]
+  form.website.data = artist["website"]
+  form.facebook_link.data = artist["facebook_link"]
+  form.seeking_venue.data = artist["seeking_venue"]
+  form.seeking_description.data = artist["seeking_description"]
+  form.image_link.data = artist["image_link"]
   return render_template('forms/edit_artist.html', form=form, artist=artist)
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
   # TODO: take values from the form submitted, and update existing
+  
+  artist = Artist.query.get(artist_id)
+  artist.name=request.form['name'],
+  artist.genres=request.form.getlist('genres'),
+  artist.address=request.form['address'],
+  artist.city=request.form['city'],
+  artist.state=request.form['state'],
+  artist.phone=request.form['phone'],
+  artist.facebook_link=request.form['facebook_link'],
+    
+  db.session.add(artist)
+  db.session.commit()
   # artist record with ID <artist_id> using the new attributes
 
   return redirect(url_for('show_artist', artist_id=artist_id))
