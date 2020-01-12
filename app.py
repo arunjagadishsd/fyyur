@@ -370,17 +370,17 @@ def create_artist_submission():
   # called upon submitting the new artist listing form
   try:
     artist = Artist(
-        name=request.form['name']
-        city=request.form['city']
-        state=request.form['state']
-        address=request.form['address']
-        phone=request.form['phone']
-        genres=request.form['genres']
+        name=request.form['name'],
+        city=request.form['city'],
+        state=request.form['state'],
+        address=request.form['address'],
+        phone=request.form['phone'],
+        genres=request.form['genres'],
         facebook_link=request.form['facebook_link']
     )
-  db.session.add(artist)
-  db.session.commit()
-  flash('Artist ' + request.form['name'] + ' was successfully listed!')
+    db.session.add(artist)
+    db.session.commit()
+    flash('Artist ' + request.form['name'] + ' was successfully listed!')
   except expression as identifier:
     flash('An error occurred. Artist ' +
           request.form['name'] + ' could not be listed.')
@@ -389,7 +389,6 @@ def create_artist_submission():
   # on successful db insert, flash success
   # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
   return render_template('pages/home.html')
-
 
 #  Shows
 #  ----------------------------------------------------------------
@@ -411,25 +410,25 @@ def create_shows():
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
-    try:
-      show = Show(
-          venue_id=request.form['venue_id'],
-          artist_id=request.form['artist_id'],
-          start_time=request.form['start_time'],
-      )
-      db.session.add(show)
-      db.session.commit()
-      flash('Show was successfully listed!')
-    except :
-      flash('An error occurred. Show could not be listed.')
-    finally:
-      db.session.close()
+  try:
+    show = Show(
+        venue_id=request.form['venue_id'],
+        artist_id=request.form['artist_id'],
+        start_time=request.form['start_time'],
+    )
+    db.session.add(show)
+    db.session.commit()
+    flash('Show was successfully listed!')
+  except :
+    flash('An error occurred. Show could not be listed.')
+  finally:
+    db.session.close()
 
-        
-  # on successful db insert, flash success
-  
-  # e.g., flash('An error occurred. Show could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+      
+# on successful db insert, flash success
+
+# e.g., flash('An error occurred. Show could not be listed.')
+# see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   return render_template('pages/home.html')
 
 @app.errorhandler(404)
